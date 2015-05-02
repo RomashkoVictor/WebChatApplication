@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="resources/css/bootstrap.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="resources/js/jquery-1.11.2.min.js"></script>
+    <script src="resources/js/bootstrap.js"></script>
+    <script src="script.js"></script>
+    <title>Chat</title>
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Victor Messanger</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="server">
+                        <a><span id="ConnectedServer" class="label label-success">Connected</span></a>
+                    </li>
+                </ul>
+                <div class="navbar-form navbar-left">
+                    <div class="input-group">
+                        <div class="input-group-addon">@</div>
+                        <input id="InputName" autocomplete="off" type="text" class="form-control" maxlength="10" placeholder="Input name" data-placement="bottom" data-trigger="manual" data-toggle="popover" title="WARNING!" data-content=" You must input nickname before sending message.">
+                    </div>
+                </div>
+                <ul class="nav navbar-nav navbar-right iconsMargin">
+                    <li>
+                        <a href="#" id="Edit" class="icon"><i class="glyphicon glyphicon-pencil"></i></a>
+                    </li>
+                    <li>
+                        <a href="#" id="Remove" class="icon"><i class="glyphicon glyphicon-trash"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 col-md-offset-2">
+                <!--<div>
+                    <h4>
+                        <p class="onlineLabel"><span class="label label-info">Online:</span></p>
+                    </h4>
+                </div>
+                <div>
+                    <ul class="list-group">
+                        <li class="list-group-item">Person 1</li>
+                        <li class="list-group-item">Person 2</li>
+                        <li class="list-group-item">Person 3</li>
+                        <li class="list-group-item">Person 4</li>
+                        <li class="list-group-item">Person 5</li>
+                    </ul>
+                </div>-->
+            </div>
+            <div class="col-md-6 marginTable">
+                <div class="my-table">
+                    <table class="table" id="talk">
+                    </table>
+                </div>
+                <div class="input-group marginInput">
+                    <textarea id="Entered-Text" class="form-control nonResize" rows="5" type="text" placeholder="Input message..."></textarea>
+                    <span class="input-group-btn">
+                        <button id="send-button" class="btn btn-info" type="button">Send</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
