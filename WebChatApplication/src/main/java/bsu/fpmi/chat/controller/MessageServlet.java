@@ -2,6 +2,7 @@ package bsu.fpmi.chat.controller;
 
 import bsu.fpmi.chat.util.ServletUtil;
 import bsu.fpmi.chat.xml.XMLHistoryUtil;
+import bsu.fpmi.chat.xml.XMLRequestHistoryUtil;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.xml.sax.SAXException;
@@ -51,7 +52,7 @@ public class MessageServlet extends HttpServlet {
             } else {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "'token' parameter needed");
             }
-        } catch (SAXException | IOException | ParserConfigurationException e) {
+        } catch (SAXException | IOException | ParserConfigurationException | XPathExpressionException e) {
 
         }
     }
@@ -99,14 +100,12 @@ public class MessageServlet extends HttpServlet {
         logger.info(data);
         String id = request.getParameter(ID);
         try {
-            JSONObject message = stringToJson(data);
-            if (message != null) {
-                XMLHistoryUtil.updateData(message);
+            if (XMLHistoryUtil.deleteData(id)) {
                 response.setStatus(HttpServletResponse.SC_OK);
             } else {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Task does not exist");
             }
-        } catch (ParseException | ParserConfigurationException | SAXException | TransformerException | XPathExpressionException e) {
+        } catch (ParserConfigurationException | SAXException | TransformerException | XPathExpressionException e) {
             logger.error(e);
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
@@ -115,7 +114,9 @@ public class MessageServlet extends HttpServlet {
     private void loadHistory() throws SAXException, IOException, ParserConfigurationException, TransformerException {
         if (!XMLHistoryUtil.doesStorageExist()) {
             XMLHistoryUtil.createStorage();
-            //addStubData();
+        }
+        if (!XMLRequestHistoryUtil.doesStorageRequestExist()) {
+            XMLRequestHistoryUtil.createStorageRequest();
         }
     }
 }

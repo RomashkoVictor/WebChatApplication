@@ -18,8 +18,13 @@ import javax.xml.xpath.*;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
+
+import static bsu.fpmi.chat.xml.XMLRequestHistoryUtil.getRequests;
+import static bsu.fpmi.chat.xml.XMLRequestHistoryUtil.getStorageRequestSize;
 
 public final class XMLHistoryUtil {
 	private static final String STORAGE_LOCATION = System.getProperty("user.home") +  File.separator + "history.xml"; // history.xml will be located in the home directory
@@ -62,7 +67,9 @@ public final class XMLHistoryUtil {
 		Element messageElement = document.createElement(MESSAGE);
 		root.appendChild(messageElement);
 
-		messageElement.setAttribute(ID, UUID.randomUUID().toString());
+		String id = UUID.randomUUID().toString();
+		XMLRequestHistoryUtil.addRequest(id);
+		messageElement.setAttribute(ID, id);
 
 		Element username = document.createElement(USERNAME);
 		username.appendChild(document.createTextNode((String)message.get(USERNAME)));
@@ -100,6 +107,7 @@ public final class XMLHistoryUtil {
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document document = documentBuilder.parse(STORAGE_LOCATION);
 		document.getDocumentElement().normalize();
+		XMLRequestHistoryUtil.addRequest((String)message.get(ID));
 		Node messageToUpdate = getNodeById(document, (String)message.get(ID));
 
 		if (messageToUpdate != null) {
@@ -133,39 +141,91 @@ public final class XMLHistoryUtil {
 		}
 	}
 
+	public static synchronized boolean deleteData(String id) throws ParserConfigurationException, SAXException, IOException, TransformerException, XPathExpressionException {
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		Document document = documentBuilder.parse(STORAGE_LOCATION);
+		document.getDocumentElement().normalize();
+		XMLRequestHistoryUtil.addRequest(id);
+		Node messageToUpdate = getNodeById(document, id);
+
+		if (messageToUpdate != null) {
+
+			NodeList childNodes = messageToUpdate.getChildNodes();
+
+			for (int i = 0; i < childNodes.getLength(); i++) {
+
+				Node node = childNodes.item(i);
+
+				if (TEXT.equals(node.getNodeName())) {
+					node.setTextContent(" ");
+				}
+
+				if (EDITED.equals(node.getNodeName())) {
+					node.setTextContent("false");
+				}
+
+				if (DELETED.equals(node.getNodeName())) {
+					node.setTextContent("true");
+				}
+			}
+
+			Transformer transformer = getTransformer();
+
+			DOMSource source = new DOMSource(document);
+			StreamResult result = new StreamResult(new File(STORAGE_LOCATION));
+			transformer.transform(source, result);
+		} else {
+			return false;
+		}
+		return true;
+	}
+
 	public static synchronized boolean doesStorageExist() {
 		File file = new File(STORAGE_LOCATION);
 		return file.exists();
 	}
 
-	public static synchronized String getMessages(int index) throws SAXException, IOException, ParserConfigurationException {
+	public static synchronized String getMessages(int index) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document document = documentBuilder.parse(STORAGE_LOCATION);
 		document.getDocumentElement().normalize();
-		Element root = document.getDocumentElement(); // Root <tasks> element
-		NodeList messageList = root.getElementsByTagName(MESSAGE);
 		JSONObject message = new JSONObject();
 		JSONArray messages= new JSONArray();
-		for (int i = index; i < messageList.getLength(); i++) {
-			Element messageElement = (Element) messageList.item(i);
-			String id = messageElement.getAttribute(ID);
-			String username = messageElement.getElementsByTagName(USERNAME).item(0).getTextContent();
-			String text = messageElement.getElementsByTagName(TEXT).item(0).getTextContent();
-			String time = messageElement.getElementsByTagName(TIME).item(0).getTextContent();
-			boolean edited = Boolean.valueOf(messageElement.getElementsByTagName(EDITED).item(0).getTextContent());
-			boolean deleted = Boolean.valueOf(messageElement.getElementsByTagName(DELETED).item(0).getTextContent());
-			message.put(USERNAME, username);
-			message.put(TEXT, text);
-			message.put(TIME, time);
-			message.put(EDITED, edited);
-			message.put(DELETED, deleted);
+		Set<String> requestId = getRequests(index);
+		for (String id:requestId) {
+			NodeList childNodes = getNodeById(document, id).getChildNodes();
 			message.put(ID, id);
+			for (int j = 0; j < childNodes.getLength(); j++) {
+
+				Node node = childNodes.item(j);
+
+				if (USERNAME.equals(node.getNodeName())) {
+					message.put(USERNAME, node.getTextContent());
+				}
+
+				if (TEXT.equals(node.getNodeName())) {
+					message.put(TEXT, node.getTextContent());
+				}
+
+				if (TIME.equals(node.getNodeName())) {
+					message.put(TIME, node.getTextContent());
+				}
+
+				if (EDITED.equals(node.getNodeName())) {
+					message.put(EDITED, Boolean.valueOf(node.getTextContent()));
+				}
+
+				if (DELETED.equals(node.getNodeName())) {
+					message.put(DELETED, Boolean.valueOf(node.getTextContent()));
+				}
+			}
 			messages.put(message);
 		}
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put(MESSAGES, messages);
-		jsonObject.put(TOKEN, getStorageSize());
+		jsonObject.put(TOKEN, getStorageRequestSize());
 		return jsonObject.toJSONString();
 	}
 
