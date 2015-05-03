@@ -62,6 +62,12 @@
     function onNameInput(e) {
         var name = document.getElementById('InputName');
         $('#InputName').popover('hide');
+        if(choisenMessage != null) {
+            choisenMessage.classList.remove('myMessage');
+            choisenMessage = null;
+            choiseEditMessage = false;
+            editable(false);
+        }
         if (!/\S/.test(name.value)) {
             name.value = '';
             username='';
