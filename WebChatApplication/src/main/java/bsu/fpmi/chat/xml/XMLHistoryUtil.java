@@ -193,7 +193,7 @@ public final class XMLHistoryUtil {
 		document.getDocumentElement().normalize();
 		JSONObject message = new JSONObject();
 		JSONArray messages= new JSONArray();
-		Set<String> requestId = getRequests(index);
+		ArrayList<String> requestId = getRequests(index);
 		for (String id:requestId) {
 			NodeList childNodes = getNodeById(document, id).getChildNodes();
 			message.put(ID, id);

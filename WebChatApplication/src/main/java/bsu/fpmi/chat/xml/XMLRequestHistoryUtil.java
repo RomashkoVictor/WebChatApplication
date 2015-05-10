@@ -22,7 +22,7 @@ import java.util.TreeSet;
  * Created by Victor on 03-May-15.
  */
 public final class XMLRequestHistoryUtil {
-    private static final String STORAGE_LOCATION = System.getProperty("user.home") +  File.separator + "requestHistory.xml"; // history.xml will be located in the home directory
+    private static final String STORAGE_LOCATION = System.getProperty("user.home") + File.separator + "requestHistory.xml"; // history.xml will be located in the home directory
     private static final String REQUESTS = "requests";
     private static final String ID = "id";
 
@@ -69,7 +69,7 @@ public final class XMLRequestHistoryUtil {
         return file.exists();
     }
 
-    public static synchronized Set<String> getRequests(int index) throws SAXException, IOException, ParserConfigurationException {
+    public static synchronized ArrayList<String> getRequests(int index) throws SAXException, IOException, ParserConfigurationException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
         Document document = documentBuilder.parse(STORAGE_LOCATION);
@@ -77,11 +77,13 @@ public final class XMLRequestHistoryUtil {
         Element root = document.getDocumentElement(); // Root <tasks> element
         NodeList idList = root.getElementsByTagName(ID);
         Set<String> requestId = new TreeSet<>();
+        ArrayList resultId = new ArrayList<>();
         for (int i = index; i < idList.getLength(); i++) {
             String id = idList.item(i).getTextContent();
-            requestId.add(id);
+            if (requestId.add(id))
+                resultId.add(id);
         }
-        return requestId;
+        return resultId;
     }
 
     public static synchronized int getStorageRequestSize() throws SAXException, IOException, ParserConfigurationException {

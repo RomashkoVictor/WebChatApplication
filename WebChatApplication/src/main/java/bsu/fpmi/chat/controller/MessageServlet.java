@@ -9,6 +9,7 @@ import org.xml.sax.SAXException;
 
 import org.apache.log4j.Logger;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,11 +19,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import static bsu.fpmi.chat.util.MessageUtil.*;
 
-@WebServlet("/Chat")
+@WebServlet(urlPatterns = {"/chat"}, asyncSupported = true)
 public class MessageServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = Logger.getLogger(MessageServlet.class.getName());
@@ -38,23 +38,31 @@ public class MessageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String token = request.getParameter(TOKEN);
-        try {
-            if (token != null && !"".equals(token)) {
-                int index = getIndex(token);
-                logger.info("Index " + index);
-                String messages = XMLHistoryUtil.getMessages(index);
-                response.setContentType(ServletUtil.APPLICATION_JSON);
-                response.setCharacterEncoding("UTF-8");
-                PrintWriter out = response.getWriter();
-                out.print(messages);
-                out.flush();
-            } else {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "'token' parameter needed");
-            }
-        } catch (SAXException | IOException | ParserConfigurationException | XPathExpressionException e) {
-
-        }
+//        String token = request.getParameter(TOKEN);
+//        logger.info("doGet");
+//        String data = ServletUtil.getMessageBody(request);
+//        logger.info(data);
+//        try {
+//            if (token != null && !"".equals(token)) {
+//                int index = getIndex(token);
+//                logger.info("Index " + index);
+//                String messages = XMLHistoryUtil.getMessages(index);
+//                response.setContentType(ServletUtil.APPLICATION_JSON);
+//                response.setCharacterEncoding("UTF-8");
+//                PrintWriter out = response.getWriter();
+//                out.print(messages);
+//                out.flush();
+//            } else {
+//                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "'token' parameter needed");
+//            }
+//        } catch (SAXException | IOException | ParserConfigurationException | XPathExpressionException e) {
+//
+//        }
+        final AsyncContext asyncContext = request.startAsync();
+        logger.info("doGet");
+        String data = ServletUtil.getMessageBody(request);
+        logger.info(data);
+        AsynchronousProcessor.addAsyncContext(asyncContext);
     }
 
     @Override
@@ -64,9 +72,8 @@ public class MessageServlet extends HttpServlet {
         logger.info(data);
         try {
             JSONObject message = stringToJson(data);
-            //Message message = jsonToMessage(json);
-            // MessageStorage.addMessage(message);
             XMLHistoryUtil.addData(message);
+            AsynchronousProcessor.notifyAllClients();
             response.setStatus(HttpServletResponse.SC_OK);
         } catch (ParseException | ParserConfigurationException | SAXException | TransformerException e) {
             logger.error(e);
@@ -83,6 +90,7 @@ public class MessageServlet extends HttpServlet {
             JSONObject message = stringToJson(data);
             if (message != null) {
                 XMLHistoryUtil.updateData(message);
+                AsynchronousProcessor.notifyAllClients();
                 response.setStatus(HttpServletResponse.SC_OK);
             } else {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Task does not exist");
@@ -101,6 +109,7 @@ public class MessageServlet extends HttpServlet {
         String id = request.getParameter(ID);
         try {
             if (XMLHistoryUtil.deleteData(id)) {
+                AsynchronousProcessor.notifyAllClients();
                 response.setStatus(HttpServletResponse.SC_OK);
             } else {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Task does not exist");

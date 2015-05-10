@@ -4,28 +4,28 @@
     var username = "";
     var choisenMessage = null;
     var choiseEditMessage = false;
-    
+
     window.addEventListener('DOMContentLoaded', run);
     window.addEventListener('resize', onResizeDocument);
-    
-   var newMessage = function (text, time) {
+
+    var newMessage = function (text, time) {
         return {
             username: username,
             text: text,
             time: time,
             edited: false,
             deleted: false,
-            id: "-1"
+            id: ""
         };
     }
-   
-   var appState = {
-	mainUrl : 'Chat',
-	messages:[],
-	token : '0'
+
+    var appState = {
+        mainUrl: 'chat',
+        messages: [],
+        token: '0'
     };
-    
-     function run(e) {
+
+    function run(e) {
         var buttonSend = document.getElementById('send-button');
         var textArea = document.getElementById('Entered-Text');
         var name = document.getElementById('InputName');
@@ -37,10 +37,11 @@
         document.getElementsByClassName('glyphicon')[1].addEventListener('click', onRemove);
         editable(false);
         onResizeDocument();
-        restore();
-         window.setInterval(restore, 500);
+        poll();
+        //restore();
+        //window.setInterval(restore, 500);
     }
-    
+
     function onResizeDocument(e) {
         var allHeight = document.getElementsByTagName('html')[0].clientHeight;
         var inputHeight = document.getElementById('Entered-Text').clientHeight;
@@ -50,7 +51,7 @@
         height = height.toString() + 'px';
         document.getElementsByClassName('my-table')[0].style.height = height;
     }
-    
+
     function takeDate() {
         var date = new Date();
         var time = ('0' + date.getDate()).slice(-2) + '.' + ('0' + (date.getMonth() + 1)).slice(-2) + "<br>";
@@ -58,11 +59,11 @@
         time += ':' + ('0' + date.getSeconds()).slice(-2);
         return time;
     }
-    
+
     function onNameInput(e) {
         var name = document.getElementById('InputName');
         $('#InputName').popover('hide');
-        if(choisenMessage != null) {
+        if (choisenMessage != null) {
             choisenMessage.classList.remove('myMessage');
             choisenMessage = null;
             choiseEditMessage = false;
@@ -70,15 +71,15 @@
         }
         if (!/\S/.test(name.value)) {
             name.value = '';
-            username='';
-           // store(taskList);
+            username = '';
+            // store(taskList);
             return;
         }
         username = name.value;
-       // store(taskList);
+        // store(taskList);
     }
-    
-     function onTextInput(e) {
+
+    function onTextInput(e) {
         var key = e.keyCode;
         if (key == 13) {
             if (e.shiftKey) {
@@ -119,18 +120,17 @@
             range.select();
         }
     }
-    
+
     function choiseMessage(e) {
-        if(choiseEditMessage ==true)
+        if (choiseEditMessage == true)
             return;
         var idMessage = this.getAttribute('id');
         for (var i = 0; i < appState.messages.length; i++)
-            if (idMessage == appState.messages[i].id)
-            {
-             if(appState.messages[i].username != username)
-                 return;
-            if(appState.messages[i].deleted == true)
-                return;
+            if (idMessage == appState.messages[i].id) {
+                if (appState.messages[i].username != username)
+                    return;
+                if (appState.messages[i].deleted == true)
+                    return;
             }
         if (choisenMessage == null) {
             choisenMessage = this;
@@ -162,7 +162,7 @@
             document.getElementsByClassName('glyphicon')[1].style.display = 'none';
         }
     }
-    
+
     function addMessage(message) {
         var scrolling = document.getElementsByClassName('my-table')[0];
         var scrollIsEnd = false;
@@ -176,43 +176,43 @@
         if (scrollIsEnd == true)
             scrolling.scrollTop = scrolling.scrollHeight;
     }
-    
+
     function createRowValues(row, message) {
         var tdTime = document.createElement('td');
         tdTime.classList.add('col-date');
         tdTime.innerHTML = message.time;
         row.appendChild(tdTime);
-        
+
         var h4 = document.createElement('h4');
         h4.classList.add('list-group-item-heading');
         h4.innerHTML = message.username;
-        
+
         var pDiv = document.createElement('div');
         pDiv.classList.add('wrap');
         pDiv.innerText = message.text;
-        
+
         var tdDiv = document.createElement('div');
         tdDiv.classList.add('list-group-item');
         tdDiv.appendChild(h4);
         tdDiv.appendChild(pDiv);
-        
+
         var tdMessage = document.createElement('td');
         tdMessage.classList.add('col-text');
         tdMessage.appendChild(tdDiv);
         row.appendChild(tdMessage);
-        
+
         if (message.edited == true) {
-            h4.innerHTML =message.username+ ' ' + '<i class="glyphicon glyphicon-pencil iconEditedDeleted"></i>';
+            h4.innerHTML = message.username + ' ' + '<i class="glyphicon glyphicon-pencil iconEditedDeleted"></i>';
         }
         if (message.deleted == true) {
-            h4.innerHTML =message.username + ' ' + '<i class="glyphicon glyphicon-trash iconEditedDeleted"></i>';
+            h4.innerHTML = message.username + ' ' + '<i class="glyphicon glyphicon-trash iconEditedDeleted"></i>';
         }
-       
+
         row.setAttribute('id', message.id);
         row.addEventListener('click', choiseMessage);
     }
-    
-     function connectedToServer(e) {
+
+    function connectedToServer(e) {
         var label = document.getElementById("ConnectedServer");
         if (e == true) {
             if (label.classList.contains('label-danger')) {
@@ -230,7 +230,7 @@
         }
     }
 
-     function onButtonClick(e) {
+    function onButtonClick(e) {
         var name = document.getElementById('InputName');
         while (username == null || username.length === 0) {
             $('#InputName').popover('show');
@@ -247,7 +247,7 @@
         if (choisenMessage == null || choiseEditMessage != true) {
             sendMessage(message);
         }
-         else {//edit
+        else {//edit
             var idMessage = choisenMessage.getAttribute('id');
             for (var i = 0; i < appState.messages.length; i++)
                 if (idMessage == appState.messages[i].id) {
@@ -257,14 +257,14 @@
                     choisenMessage.classList.remove('myMessage');
                     choisenMessage = null;
                     choiseEditMessage = false;
-                    
+
                     break;
                 }
-            
+
         }
         text.value = '';
     }
-    
+
     function onEdit(e) {
         var idMessage = choisenMessage.getAttribute('id');
         for (var i = 0; i < appState.messages.length; i++)
@@ -301,12 +301,10 @@
                 break;
             }
     }
-    
-    function findAndReplace(message){
-        for (var i = 0; i < appState.messages.length; i++)
-        {
-            if(appState.messages[i].id == message.id)
-            {
+
+    function findAndReplace(message) {
+        for (var i = 0; i < appState.messages.length; i++) {
+            if (appState.messages[i].id == message.id) {
                 appState.messages[i] = message;
                 update(message);
                 return;
@@ -314,122 +312,145 @@
         }
         addMessage(message);
     }
-    
-    function update(message){
-        var mes=document.getElementById(message.id);
-         if (message.edited == true) {
-            mes.childNodes[1].childNodes[0].childNodes[0].innerHTML =message.username+ ' ' + '<i class="glyphicon glyphicon-pencil iconEditedDeleted"></i>';
+
+    function update(message) {
+        var mes = document.getElementById(message.id);
+        if (message.edited == true) {
+            mes.childNodes[1].childNodes[0].childNodes[0].innerHTML = message.username + ' ' + '<i class="glyphicon glyphicon-pencil iconEditedDeleted"></i>';
         }
         if (message.deleted == true) {
-           mes.childNodes[1].childNodes[0].childNodes[0].innerHTML =message.username + ' ' + '<i class="glyphicon glyphicon-trash iconEditedDeleted"></i>';
+            mes.childNodes[1].childNodes[0].childNodes[0].innerHTML = message.username + ' ' + '<i class="glyphicon glyphicon-trash iconEditedDeleted"></i>';
         }
-        mes.childNodes[1].childNodes[0].childNodes[1].innerHTML=message.text;
+        mes.childNodes[1].childNodes[0].childNodes[1].innerText = message.text;
     }
-    
+
     function updateAll(response) {
-        for (var i = 0; i < response.length; i++)
-        {
+        for (var i = 0; i < response.length; i++) {
             findAndReplace(response[i]);
         }
     }
-    
+
     function sendMessage(message) {
-	post(appState.mainUrl, JSON.stringify(message), function(){
-	});
-}
-    function editMessage(message) {
-	put(appState.mainUrl, JSON.stringify(message), function() {
-	});
-}
-    function deleteMessage(id) {
-	del(appState.mainUrl + '?id=' + id, function(){
-	});
+        post(appState.mainUrl, JSON.stringify(message), function () {
+        });
     }
-    
-    function restore(continueWith) {
-	var url = appState.mainUrl + '?token=' + appState.token;
 
-	get(url, function(responseText) {
-		console.assert(responseText != null);
+    function editMessage(message) {
+        put(appState.mainUrl, JSON.stringify(message), function () {
+        });
+    }
 
-		var response = JSON.parse(responseText);
+    function deleteMessage(id) {
+        del(appState.mainUrl + '?id=' + id, function () {
+        });
+    }
 
-		appState.token = response.token;
-		updateAll(response.messages);
-		//output(appState);
+//    function restore(continueWith) {
+//	var url = appState.mainUrl + '?token=' + appState.token;
+//
+//	get(url, function(responseText) {
+//		console.assert(responseText != null);
+//
+//		var response = JSON.parse(responseText);
+//
+//		appState.token = response.token;
+//		updateAll(response.messages);
+//		//output(appState);
+//
+//		continueWith && continueWith();
+//	});
+//}
 
-		continueWith && continueWith();
-	});
-}
-    
-    function get(url, continueWith, continueWithError) {
-	ajax('GET', url, null, continueWith, continueWithError);
-}
+    function poll() {
+        $.ajax({
+            url: appState.mainUrl + '?token=' + appState.token,
+            success: function (response) {
+                // var response = JSON.parse(data);
+                appState.token = response.token;
+                updateAll(response.messages);
+                connectedToServer(true);
+            },
+            error: function (e) {
+                if (e.statusText == "timeout")
+                    connectedToServer(true);
+                else
+                    connectedToServer(false);
+            },
+            dataType: "json",
+            complete: poll,
+            timeout: 30000
+        });
+    }
 
-function post(url, data, continueWith, continueWithError) {
-	ajax('POST', url, data, continueWith, continueWithError);	
-}
+//    function get(url, continueWith, continueWithError) {
+//	ajax('GET', url, null, continueWith, continueWithError);
+//}
+
+    function post(url, data, continueWith, continueWithError) {
+        ajax('POST', url, data, continueWith, continueWithError);
+    }
 
     function put(url, data, continueWith, continueWithError) {
-	ajax('PUT', url, data, continueWith, continueWithError);	
-}
-    function del(url, continueWith, continueWithError) {
-	ajax('DELETE', url, null, continueWith, continueWithError);	
-}
-    
-function defaultErrorHandler(message) {
-	connectedToServer(false);
-}
-    
-    function isError(text) {
-	if(text == "")
-		return false;
-	
-	try {
-		var obj = JSON.parse(text);
-	} catch(ex) {
-		return true;
-	}
-
-	return !!obj.error;
-}
-    
-    function ajax(method, url, data, continueWith, continueWithError) {
-	var xhr = new XMLHttpRequest();
-
-	continueWithError = defaultErrorHandler;
-	xhr.open(method || 'GET', url, true);
-
-	xhr.onload = function () {
-		if (xhr.readyState !== 4)
-			return;
-
-		if(xhr.status != 200) {
-			continueWithError('Error on the server side, response ' + xhr.status);
-			return;
-		}
-        else
-            connectedToServer(true);
-        
-		if(isError(xhr.responseText)) {
-			continueWithError('Error on the server side, response ' + xhr.responseText);
-			return;
-		}
-
-		continueWith(xhr.responseText);
-	};    
-
-    xhr.ontimeout = function () {
-        connectedToServer(false);
-    	continueWithError('Server timed out !');
+        ajax('PUT', url, data, continueWith, continueWithError);
     }
 
-    xhr.onerror = function (e) {
-        connectedToServer(false);
-        continueWithError();
-    };
+    function del(url, continueWith, continueWithError) {
+        ajax('DELETE', url, null, continueWith, continueWithError);
+    }
 
-    xhr.send(data);
-}
-    }()
+    function defaultErrorHandler(message) {
+        connectedToServer(false);
+    }
+
+    function isError(text) {
+        if (text == "")
+            return false;
+
+        try {
+            var obj = JSON.parse(text);
+        } catch (ex) {
+            return true;
+        }
+
+        return !!obj.error;
+    }
+
+    function ajax(method, url, data, continueWith, continueWithError) {
+        var xhr = new XMLHttpRequest();
+
+        continueWithError = defaultErrorHandler;
+        xhr.open(method || 'GET', url, true);
+
+        xhr.onload = function () {
+            if (xhr.readyState !== 4)
+                return;
+
+            if (xhr.status != 200) {
+                continueWithError('Error on the server side, response ' + xhr.status);
+                return;
+            }
+            else
+                connectedToServer(true);
+
+            if (isError(xhr.responseText)) {
+                continueWithError('Error on the server side, response ' + xhr.responseText);
+                return;
+            }
+
+            continueWith(xhr.responseText);
+        };
+
+        xhr.ontimeout = function () {
+            connectedToServer(false);
+            continueWithError('Server timed out !');
+        }
+
+        xhr.onerror = function (e) {
+            connectedToServer(false);
+            continueWithError();
+        };
+
+        xhr.send(data);
+    }
+}()
 )
