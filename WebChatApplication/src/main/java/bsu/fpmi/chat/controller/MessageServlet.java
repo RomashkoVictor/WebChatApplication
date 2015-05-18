@@ -60,7 +60,7 @@ public class MessageServlet extends HttpServlet {
 //        }
         final AsyncContext asyncContext = request.startAsync();
         logger.info("doGet");
-        String data = ServletUtil.getMessageBody(request);
+        String data = "Token: "+request.getParameter(TOKEN);
         logger.info(data);
         AsynchronousProcessor.addAsyncContext(asyncContext);
     }
@@ -69,7 +69,7 @@ public class MessageServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("doPost");
         String data = ServletUtil.getMessageBody(request);
-        logger.info(data);
+        logger.info("Message body: "+data);
         try {
             JSONObject message = stringToJson(data);
             XMLHistoryUtil.addData(message);
@@ -84,8 +84,8 @@ public class MessageServlet extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("doPut");
-        String data = ServletUtil.getMessageBody(request);
-        logger.info(data);
+        String data =ServletUtil.getMessageBody(request);
+        logger.info("Message body: "+data);
         try {
             JSONObject message = stringToJson(data);
             if (message != null) {
@@ -104,8 +104,7 @@ public class MessageServlet extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("doDelete");
-        String data = ServletUtil.getMessageBody(request);
-        logger.info(data);
+        logger.info("Id: "+request.getParameter(ID));
         String id = request.getParameter(ID);
         try {
             if (XMLHistoryUtil.deleteData(id)) {
