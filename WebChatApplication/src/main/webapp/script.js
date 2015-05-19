@@ -400,6 +400,10 @@
 
     function defaultErrorHandler(message) {
         connectedToServer(false);
+        if (message == 400)
+            window.location.href="/chat/resources/jsp/error400.jsp";
+        if (message == 500)
+            window.location.href="/chat/resources/jsp/error500.jsp";
     }
 
     function isError(text) {
@@ -426,14 +430,14 @@
                 return;
 
             if (xhr.status != 200) {
-                continueWithError('Error on the server side, response ' + xhr.status);
+                continueWithError(xhr.status);
                 return;
             }
             else
                 connectedToServer(true);
 
             if (isError(xhr.responseText)) {
-                continueWithError('Error on the server side, response ' + xhr.responseText);
+                continueWithError(xhr.responseText);
                 return;
             }
 
@@ -452,5 +456,7 @@
 
         xhr.send(data);
     }
-}()
+}
+
+()
 )

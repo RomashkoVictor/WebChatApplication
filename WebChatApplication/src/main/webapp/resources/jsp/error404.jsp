@@ -13,6 +13,6 @@
 </head>
 <body>
 <h3>Oops! Page not found.</h3>
-<a href="../Chat">Go home</a>
+<a href="../chat">Go home</a>
 </body>
 </html>

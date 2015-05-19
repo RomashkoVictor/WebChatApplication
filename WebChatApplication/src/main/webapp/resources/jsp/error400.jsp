@@ -13,5 +13,6 @@
 </head>
 <body>
 <h3>Oops! Bad request.</h3>
+<a href="../../../chat">Go home</a>
 </body>
 </html>
