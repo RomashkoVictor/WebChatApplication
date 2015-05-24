@@ -49,6 +49,13 @@
       <version>20141113</version>
     </dependency>
 
+    <!-- MySQL connector -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.35</version>
+    </dependency>
+
   </dependencies>
   <build>
     <finalName>WebChatApplication</finalName>

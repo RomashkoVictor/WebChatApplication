@@ -32,11 +32,11 @@ public final class XMLHistoryUtil {
 	public static final String TOKEN = "token";
 	public static final String MESSAGE = "message";
 	public static final String USERNAME = "username";
-	private static final String TEXT = "text";
-	private static final String TIME = "time";
-	private static final String ID = "id";
-	private static final String EDITED = "edited";
-	private static final String DELETED = "deleted";
+	public static final String TEXT = "text";
+	public static final String TIME = "time";
+	public static final String ID = "id";
+	public static final String EDITED = "edited";
+	public static final String DELETED = "deleted";
 
 	private XMLHistoryUtil() {
 	}
@@ -67,7 +67,7 @@ public final class XMLHistoryUtil {
 		Element messageElement = document.createElement(MESSAGE);
 		root.appendChild(messageElement);
 
-		String id = UUID.randomUUID().toString();
+		String id = (String)message.get(ID);
 		XMLRequestHistoryUtil.addRequest(id);
 		messageElement.setAttribute(ID, id);
 
@@ -191,10 +191,10 @@ public final class XMLHistoryUtil {
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document document = documentBuilder.parse(STORAGE_LOCATION);
 		document.getDocumentElement().normalize();
-		JSONObject message = new JSONObject();
 		JSONArray messages= new JSONArray();
 		ArrayList<String> requestId = getRequests(index);
 		for (String id:requestId) {
+			JSONObject message = new JSONObject();
 			NodeList childNodes = getNodeById(document, id).getChildNodes();
 			message.put(ID, id);
 			for (int j = 0; j < childNodes.getLength(); j++) {

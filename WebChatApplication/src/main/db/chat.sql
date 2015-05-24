@@ -27,7 +27,9 @@ CREATE TABLE `messages` (
   `text` varchar(1000) DEFAULT NULL,
   `date` datetime DEFAULT NULL,
   `user_id` varchar(40) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `user_id_idx` (`user_id`),
+  CONSTRAINT `user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -37,7 +39,7 @@ CREATE TABLE `messages` (
 
 LOCK TABLES `messages` WRITE;
 /*!40000 ALTER TABLE `messages` DISABLE KEYS */;
-INSERT INTO `messages` VALUES ('1','1','2015-05-16 22:47:08','10'),('10','10','2015-05-16 22:49:55','1'),('2','2','2015-05-16 22:47:27','9'),('3','3','2015-05-16 22:48:53','8'),('4','4','2015-05-16 22:49:02','7'),('5','5','2015-05-16 22:49:11','6'),('6','6','2015-05-16 22:49:21','5'),('7','7','2015-05-16 22:49:30','4'),('8','8','2015-05-16 22:49:39','3'),('9','9','2015-05-16 22:49:47','2');
+INSERT INTO `messages` VALUES ('1','1','2015-05-02 22:47:08','1'),('10','10','2015-05-16 22:49:55','1'),('2','hello bla-bla','2015-05-16 22:47:27','1'),('3','11hello11','2015-05-02 22:48:53','3'),('4','4','2015-05-16 22:49:02','1'),('5','hell','2015-05-16 22:49:11','3'),('6','6','2015-05-02 22:49:21','3'),('7','7','2015-05-16 22:49:30','3'),('8',' hello ','2015-05-16 22:49:39','2'),('9','9','2015-05-16 22:49:47','2');
 /*!40000 ALTER TABLE `messages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -74,4 +76,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-05-16 22:53:16
+-- Dump completed on 2015-05-22 18:43:15

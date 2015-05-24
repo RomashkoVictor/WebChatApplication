@@ -1,5 +1,7 @@
 package bsu.fpmi.chat.controller;
 
+import bsu.fpmi.chat.dao.MessageDao;
+import bsu.fpmi.chat.dao.MessageDaoImpl;
 import bsu.fpmi.chat.util.ServletUtil;
 import bsu.fpmi.chat.xml.XMLHistoryUtil;
 import bsu.fpmi.chat.xml.XMLRequestHistoryUtil;
@@ -19,6 +21,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
+import java.util.UUID;
 
 import static bsu.fpmi.chat.util.MessageUtil.*;
 
@@ -26,10 +29,12 @@ import static bsu.fpmi.chat.util.MessageUtil.*;
 public class MessageServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = Logger.getLogger(MessageServlet.class.getName());
+    private MessageDao messageDao;
 
     @Override
     public void init() throws ServletException {
         try {
+            messageDao = new MessageDaoImpl();
             loadHistory();
         } catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
             logger.error(e);
@@ -72,7 +77,9 @@ public class MessageServlet extends HttpServlet {
         logger.info("Message body: "+data);
         try {
             JSONObject message = stringToJson(data);
+            message.put(ID, UUID.randomUUID().toString());
             XMLHistoryUtil.addData(message);
+            messageDao.add(message);
             AsynchronousProcessor.notifyAllClients();
             response.setStatus(HttpServletResponse.SC_OK);
         } catch (ParseException | ParserConfigurationException | SAXException | TransformerException e) {
@@ -90,6 +97,7 @@ public class MessageServlet extends HttpServlet {
             JSONObject message = stringToJson(data);
             if (message != null) {
                 XMLHistoryUtil.updateData(message);
+                messageDao.update(message);
                 AsynchronousProcessor.notifyAllClients();
                 response.setStatus(HttpServletResponse.SC_OK);
             } else {
@@ -108,6 +116,7 @@ public class MessageServlet extends HttpServlet {
         String id = request.getParameter(ID);
         try {
             if (XMLHistoryUtil.deleteData(id)) {
+                messageDao.delete(id);
                 AsynchronousProcessor.notifyAllClients();
                 response.setStatus(HttpServletResponse.SC_OK);
             } else {

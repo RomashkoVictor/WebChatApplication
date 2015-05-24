@@ -1,5 +1,7 @@
 package bsu.fpmi.chat.controller;
 
+import bsu.fpmi.chat.dao.MessageDao;
+import bsu.fpmi.chat.dao.MessageDaoImpl;
 import bsu.fpmi.chat.xml.XMLHistoryUtil;
 import bsu.fpmi.chat.util.ServletUtil;
 import bsu.fpmi.chat.xml.XMLRequestHistoryUtil;
@@ -11,6 +13,7 @@ import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,6 +25,7 @@ import static bsu.fpmi.chat.util.MessageUtil.getIndex;
 
 public final class AsynchronousProcessor {
     private final static Queue<AsyncContext> storage = new ConcurrentLinkedQueue<AsyncContext>();
+    private static MessageDao messageDao = new MessageDaoImpl();
 
     public static void notifyAllClients() {
         for (AsyncContext asyncContext : storage) {
@@ -37,7 +41,8 @@ public final class AsynchronousProcessor {
         try {
             if (token != null && !"".equals(token)) {
                 int index = getIndex(token);
-                String messages = XMLHistoryUtil.getMessages(index);
+               // String messages = XMLHistoryUtil.getMessages(index);
+                String messages = messageDao.getMesseges(index).toString();
                 asyncContext.getResponse().setContentType(ServletUtil.APPLICATION_JSON);
                 asyncContext.getResponse().setCharacterEncoding("utf-8");
                 PrintWriter out = asyncContext.getResponse().getWriter();
@@ -46,7 +51,7 @@ public final class AsynchronousProcessor {
             } else {
                 ((HttpServletResponse) asyncContext.getResponse()).sendError(HttpServletResponse.SC_BAD_REQUEST, "'token' parameter needed");
             }
-        } catch (SAXException | IOException | ParserConfigurationException | XPathExpressionException e) {
+        } catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
 
         }
     }
